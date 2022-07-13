@@ -11,7 +11,7 @@ import numpy as np
 import networkx as nx
 from distanceclosure.dijkstra import all_pairs_dijkstra_path_length
 __name__ = 'distanceclosure'
-__author__ = """\n""".join(['Rion Brattig Correia <rionbr@gmail.com>'])
+__author__ = """\n""".join(['Rion Brattig Correia <rionbr@gmail.com>', 'Felipe Xavier Costa <fcosta@binghamton.com>'])
 
 __all__ = [
     "distance_closure",
@@ -20,9 +20,12 @@ __all__ = [
 ]
 
 
-__kinds__ = ['metric', 'ultrametric']
+__kinds__ = ['metric', 'ultrametric', 'product']
 __algorithms__ = ['dense', 'dijkstra']
 
+def prod(d):
+    x, y = d
+    return ((x + 1)*(y+1) - 1)
 
 def distance_closure(D, kind='metric', algorithm='dijkstra', weight='weight', only_backbone=False, verbose=False, *args, **kwargs):
     """Computes the transitive closure (All-Pairs-Shortest-Paths; APSP)
@@ -95,6 +98,8 @@ def distance_closure(D, kind='metric', algorithm='dijkstra', weight='weight', on
             disjunction = sum
         elif kind == 'ultrametric':
             disjunction = max
+        elif kind == 'product':
+            disjunction = prod
 
         edges_seen = set()
         i = 1
