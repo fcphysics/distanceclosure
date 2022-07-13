@@ -147,6 +147,64 @@ def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', 
     return G
 
 
+def distance_closure_selfloops(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', weight='weight', verbose=False, *args, **kwargs):
+    """Computes the transitive closure (All-Pairs-Shortest-Paths; APSP)
+    using different shortest path measures on the distance graph
+    (adjacency matrix) with values in the ``[0,inf]`` interval.
+    Including self-loops.
+
+    .. math::
+
+        c_{ij} = min_{k}( metric ( a_{ik} , b_{kj} ) )
+
+    Parameters
+    ----------
+    D : NetworkX.Graph
+        The Distance graph.
+
+    kind : string
+        Type of closure to compute: ``metric`` or ``ultrametric``.
+
+    minkowski_par : float > 0
+        Parameter of Minkowski distance
+
+    algorithm : string
+        Type of algorithm to use: ``dense`` or ``dijkstra``.
+
+    weight : string
+        Edge property containing distance values. Defaults to `weight`.
+        
+    Verbose :bool
+        Prints statements as it computes.
+
+    Returns
+    --------
+    C : NetworkX.Graph
+        The distance closure graph. Note this may be a fully connected graph.
+
+    See also: distance_closure
+    """
+
+    G = distance_closure(D, kind=kind, minkowski_par=minkowski_par, algorithm=algorithm, weight=weight, verbose=verbose)
+
+    kind_distance = '{kind:s}_distance'.format(kind=kind)
+    is_kind = 'is_{kind:s}'.format(kind=kind)
+
+    # Self-loops
+    for u, s in nx.selfloop_edges(G):
+        length = G[u][u][weightt]
+        for v in G.neighbors(u):
+            if v != u and G.has_edge(v, u):
+                new_length = G[u][v][kind_distance] + G[v][u][kind_distance]
+                if new_length < length:
+                    length = new_length
+        G[u][u][kind_distance] = length
+        G[u][u][is_kind] = True if (length == G[u][u][weight]) else False
+
+    return G
+
+
+
 def _transitive_closure_dense_numpy(A, kind='metric', verbose=False):
     """
     Calculates Transitive Closure using numpy dense matrix traversing.
