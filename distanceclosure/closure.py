@@ -20,14 +20,30 @@ __all__ = [
 ]
 
 
-__kinds__ = ['metric', 'ultrametric', 'product']
+__kinds__ = ['metric', 'ultrametric', 'product', 'minkowski']
 __algorithms__ = ['dense', 'dijkstra']
 
 def prod(d):
     x, y = d
-    return ((x + 1)*(y+1) - 1)
 
-def distance_closure(D, kind='metric', algorithm='dijkstra', weight='weight', only_backbone=False, verbose=False, *args, **kwargs):
+    try:
+        g = (x + 1)*(y+1) - 1
+    except OverflowError:
+        g = np.inf
+
+    return g
+
+def mink(d, l):
+    x, y = d
+    
+    try:
+        g = (x**l + y**l)**(1./l) 
+    except OverflowError:
+        g = np.inf
+    
+    return g
+
+def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', weight='weight', only_backbone=False, verbose=False, *args, **kwargs):
     """Computes the transitive closure (All-Pairs-Shortest-Paths; APSP)
     using different shortest path measures on the distance graph
     (adjacency matrix) with values in the ``[0,inf]`` interval.
@@ -100,6 +116,9 @@ def distance_closure(D, kind='metric', algorithm='dijkstra', weight='weight', on
             disjunction = max
         elif kind == 'product':
             disjunction = prod
+        elif kind == 'minkowski':
+            mink.__defaults__ = ([0, 1], minkowski_par)
+            disjunction = mink
 
         edges_seen = set()
         i = 1
