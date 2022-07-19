@@ -43,7 +43,7 @@ def mink(d, l):
     
     return g
 
-def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', weight='weight', only_backbone=False, verbose=False, self_loops=False, *args, **kwargs):
+def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', weight='weight', only_backbone=False, verbose=False, self_loops=False, cutoff=None, *args, **kwargs):
     """Computes the transitive closure (All-Pairs-Shortest-Paths; APSP)
     using different shortest path measures on the distance graph
     (adjacency matrix) with values in the ``[0,inf]`` interval.
@@ -124,7 +124,7 @@ def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', 
             disjunction = mink
 
         if self_loops:
-            G = _compute_dijkstra_closure(D, disjunction=disjunction, weight=weight, only_backbone=False, verbose=verbose, *args, **kwargs)
+            G = _compute_dijkstra_closure(D, disjunction=disjunction, weight=weight, only_backbone=False, verbose=verbose, cutoff=cutoff, *args, **kwargs)
 
             if verbose:
                 print("Closure: Dijkstra : self loops")
@@ -139,11 +139,11 @@ def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', 
                 G[u][u]['trig_distance'] = length
                 G[u][u]['is_trig'] = True if (length == G[u][u][weight]) else False
         else:
-            G = _compute_dijkstra_closure(D, disjunction=disjunction, weight=weight, only_backbone=only_backbone, verbose=verbose, *args, **kwargs)
+            G = _compute_dijkstra_closure(D, disjunction=disjunction, weight=weight, only_backbone=only_backbone, verbose=verbose, cutoff=cutoff, *args, **kwargs)
 
     return G
 
-def _compute_dijkstra_closure(D, disjunction=sum, weight='weight', only_backbone=False, verbose=False, *args, **kwargs):
+def _compute_dijkstra_closure(D, disjunction=sum, weight='weight', only_backbone=False, verbose=False, cutoff=None, *args, **kwargs):
     """Computes the transitive closure (All-Pairs-Shortest-Paths; APSP)
     using different shortest path measures on the distance graph
     (adjacency matrix) with values in the ``[0,inf]`` interval.
@@ -204,7 +204,7 @@ def _compute_dijkstra_closure(D, disjunction=sum, weight='weight', only_backbone
     i = 1
     total = G.number_of_nodes()
     # APSP
-    for u, lengths in all_pairs_dijkstra_path_length(G, weight=weight, disjunction=disjunction):
+    for u, lengths in all_pairs_dijkstra_path_length(G, weight=weight, disjunction=disjunction, cutoff=cutoff):
         if verbose:
             per = i / total
             print("Closure: Dijkstra : source node {u:s} : {i:d} of {total:d} ({per:.2%})".format(u=u, i=i, total=total, per=per))
