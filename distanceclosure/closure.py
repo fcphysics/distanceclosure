@@ -130,7 +130,7 @@ def distance_closure(D, kind='metric', minkowski_par=1.0, algorithm='dijkstra', 
                 print("Closure: Dijkstra : self loops")
 
             for u, s in nx.selfloop_edges(G):
-                length = G[u][u][weightt]
+                length = G[u][u][weight]
                 for v in G.neighbors(u):
                     if v != u and G.has_edge(v, u):
                         new_length = disjunction([G[u][v]['trig_distance'], G[v][u]['trig_distance']])
