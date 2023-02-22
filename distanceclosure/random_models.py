@@ -69,7 +69,7 @@ def _from_distortion_distribution(D, s_values, weight='distance', kind='metric')
     return G
 
 
-def random_symmetry_breaking(G, alpha=0.5):
+def random_proximity_symmetry_breaking(G, alpha=0.5):
     GD = G.to_directed()
     nx.set_edge_attributes(GD, values=0, name='asymmetry')
     
@@ -80,5 +80,18 @@ def random_symmetry_breaking(G, alpha=0.5):
             
             GD[v][u]['proximity'] = ((1-GD[u][v]['asymmetry'])/(1+GD[u][v]['asymmetry']))*GD[u][v]['proximity']
             GD[v][u]['distance'] = 1./GD[v][u]['proximity'] - 1
+    
+    return GD
+
+def random_distance_symmetry_breaking(G, alpha=0.5):
+    GD = G.to_directed()
+    nx.set_edge_attributes(GD, values=0, name='asymmetry')
+    
+    for u, v, d in GD.edges(data=True):
+        if d['asymmetry'] == 0:
+            GD[u][v]['asymmetry'] = alpha if np.random.rand() < 0.5 else -alpha
+            GD[v][u]['asymmetry'] = -GD[u][v]['asymmetry']
+            
+            GD[v][u]['distance'] = ((1-GD[u][v]['asymmetry'])/(1+GD[u][v]['asymmetry']))*GD[u][v]['distance']
     
     return GD
